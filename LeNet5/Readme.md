@@ -1,6 +1,6 @@
 # LeNet5
 ![image](https://github.com/FangLintao/Classic-CNN-Architecutres/blob/master/LeNet5/images/model.png)
-###### reference: "Gradient-Based Learning Applied to Document Recognition",Yann LeCun, Léon Bottou, Yoshua Bengio, Patrick Haffner Published 1998
+###### reference: "Gradient-Based Learning Applied to Document Recognition"
 ## Description
 LeNet5 architecture, published on paper "Gradient-Based Learning Applied to Document Recognition" in 1998, is mainly used to recognize hand-written numbers from 0-9.However, because of its simple architecture, it is constrained by the aviliability ofcomputing resources.
 ## Data Loading
@@ -41,3 +41,6 @@ by using image visualize, so that pictures coming from testing stage can be visu
 
 ##### Testing 
 ![image](https://github.com/FangLintao/Classic-CNN-Architecutres/blob/master/LeNet5/images/testing_results.png)
+## Reference
+1. "Gradient-Based Learning Applied to Document Recognition",Yann LeCun, Léon Bottou, Yoshua Bengio, Patrick Haffner, IEEE, 11.1998
+2. ["MNIST Handwritten Digit Recognition in PyTorch"](https://nextjournal.com/gkoehler/pytorch-mnist),  Gregor Koehler•Feb 17 2020
