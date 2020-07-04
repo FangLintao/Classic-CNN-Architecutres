@@ -13,6 +13,7 @@ from collections import OrderedDict
 import matplotlib.pyplot as plt
 import numpy as np
 from tqdm import tqdm
+import os
 
 from RUN.RunManager import RunManager
 from RUN.RunBuilder import RunBuilder
@@ -21,8 +22,11 @@ from Tools.Visualize import Visualize
 device = torch.device("cuda")
 cpu = torch.device("cpu")
 class train_test_model:
-    def __init__(self,network):
+    def __init__(self,network,model_dir="saved_models"):
         self.network = network
+        self.model_dir = os.path.join("./"+self.network+"/"+model_dir)
+        if not os.path.exists(self.model_dir):
+            os.mkdir(self.model_dir)
 
     def train_model(self,model, epoch,train_set,val_set,lr,batch_size,num_worker,saved_accuracy):
         """
@@ -37,7 +41,7 @@ class train_test_model:
             num_worker(list): number works, e.g. [0,1,...]
             saved_accuracy(scalar): when the accuracy above certain value, we save trained model parameters
         """
-        self.model = model
+        self.model = model.cuda()
         self.epoch = epoch
         self.train_set = train_set
         self.val_set = val_set
@@ -47,23 +51,18 @@ class train_test_model:
         self.saved_accuracy = saved_accuracy
         
         parameters = OrderedDict(
-        filename = ["{}".format(self.model)],
+        filename = ["{}".format(self.network)],
         learning_rate = self.lr,
         batch_size = self.batch_size,
         num_worker = self.num_worker,
-        #shuffle = [True,False]
         )
         self.Accuracy = []
         m = RunManager()
         for run in RunBuilder.get_runs(parameters):
             train_Loader = torch.utils.data.DataLoader(self.train_set, batch_size=run.batch_size, shuffle = True, num_workers = run.num_worker)
             val_Loader = torch.utils.data.DataLoader(self.val_set,batch_size = run.batch_size, shuffle = True, num_workers=run.num_worker)
-
-            self.network = self.network.to(device)
-
-
-            optimizer = optim.Adam(self.network.parameters(), lr = run.learning_rate)
-            m.begin_run(run,self.network,val_Loader)
+            optimizer = optim.Adam(self.model.parameters(), lr = run.learning_rate)
+            m.begin_run(run,self.model,val_Loader)
             for epoch in tqdm(range(int(self.epoch)),ascii=True,desc="epoch"):
                 m.begin_epoch()
                 for data in train_Loader:
@@ -71,7 +70,7 @@ class train_test_model:
                     inputs, labels = Variable(inputs).type(torch.FloatTensor), Variable(labels).type(torch.long)
                     inputs = inputs.to(device)
                     labels = labels.to(device)
-                    predict = self.network(inputs)
+                    predict = self.model(inputs)
                     loss_fc = nn.CrossEntropyLoss()
                     train_Loss = loss_fc(predict, labels)
                     optimizer.zero_grad()
@@ -84,7 +83,7 @@ class train_test_model:
                         inputs, labels = Variable(inputs).type(torch.FloatTensor), Variable(labels).type(torch.long)
                         inputs = inputs.to(device)
                         labels = labels.to(device)
-                        predict = self.network(inputs)
+                        predict = self.model(inputs)
                         loss_fc = nn.CrossEntropyLoss()
                         val_Loss = loss_fc(predict, labels)
                         m.track_loss(val_Loss)
@@ -92,7 +91,7 @@ class train_test_model:
                 accuracy = m.end_epoch()
                 self.Accuracy.append(accuracy)
                 if accuracy > self.saved_accuracy:
-                    torch.save(self.network.state_dict(), "./Saved_model/{}_with_accuracy={}".format(self.model,accuracy))
+                    torch.save(self.network.state_dict(), self.model_dir+"/{}_with_accuracy={}.pth".format(self.network,accuracy))
             m.end_run()
             m.save('result')
 
@@ -110,7 +109,7 @@ class train_test_model:
         self.network = self.network.to(device)
 
         #network = network.to(device)
-        self.network.load_state_dict(torch.load("Saved_model/{}_with_accuracy={}".format(self.load_model,self.accuracy)))
+        self.network.load_state_dict(torch.load(self.model_dir+"/{}_with_accuracy={}.pth".format(self.load_model,self.accuracy)))
         self.network = self.network.to(device)
         for data in Test_Loader:
             inputs,labels = data
