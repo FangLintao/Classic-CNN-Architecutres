@@ -91,7 +91,7 @@ class train_test_model:
                 accuracy = m.end_epoch()
                 self.Accuracy.append(accuracy)
                 if accuracy > self.saved_accuracy:
-                    torch.save(self.network.state_dict(), self.model_dir+"/{}_with_accuracy={}.pth".format(self.network,accuracy))
+                    torch.save(self.model.state_dict(), self.model_dir+"/{}_with_accuracy={}.pth".format(self.network,accuracy))
             m.end_run()
             m.save('result')
 
