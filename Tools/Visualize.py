@@ -5,10 +5,11 @@ import torch
 import numpy as np
 import matplotlib.pyplot as plt
 import cv2
+import random
 cpu = torch.device("cpu")
 
 class Visualize:
-    def __init__(self,categories = None):
+    def __init__(self,categories=None):
         self.categories = categories
     def image_visualize(self,image,prediction):
         self.image = image
@@ -39,33 +40,27 @@ class Visualize:
         activation = {}
         def feature_hook(name):
             def hook(model, inputs, outputs):
-                activation[name] = outputs.detach()
+                activation[name] = outputs[0].detach()
             return hook
         network_layer.register_forward_hook(feature_hook(self.layer))
         prediction = self.network(self.Image)
         act = activation[self.layer].squeeze()
-
         i = 0
         fig = plt.figure(figsize=(self.Image.size(2), self.Image.size(3)))
         for idx in range(act.size(0)):
             if act.size(1) <= 3:
                 for channel in range(act.size(1)):
                     ax = fig.add_subplot(act.size(0),act.size(1),i+1)
-                    ax.imshow(act[idx][channel],interpolation='none')
                     ax.axis('off')
                     if self.categories !=None:
-                        ax.set_title("name -> {}".format(self.categories[self.labels[idx]]),fontsize=20)
+                        ax.set_title("name -> {}".format(self.categories[self.labels[idx]]),fontsize=150)
+                    ax.imshow(act[idx][channel],interpolation='none')
                     i+=1
             else:
                 for channel in range(5):
                     ax = fig.add_subplot(act.size(0),5,i+1)
-                    ax.imshow(act[idx][channel], interpolation='none')
                     ax.axis('off')
                     if self.categories !=None:
-                        ax.set_title("name -> {}".format(self.categories[self.labels[idx]]),fontsize=20)
+                        ax.set_title("name -> {}".format(self.categories[self.labels[idx]]),fontsize=150)
+                    ax.imshow(act[idx][channel], interpolation='none')
                     i+=1
-
-
-
-
-

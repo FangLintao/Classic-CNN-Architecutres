@@ -95,7 +95,7 @@ class train_test_model:
             m.end_run()
             m.save('result')
 
-    def test_model(self,load_model,test_set,accuracy, batch_size, num_workers):
+    def test_model(self,model,load_model,test_set,accuracy, batch_size, num_workers):
         self.load_model = load_model
         self.test_set = test_set
         self.accuracy = accuracy
@@ -106,16 +106,14 @@ class train_test_model:
         if self.test_set.classes:
             categories = self.test_set.classes
         Vis = Visualize(categories)
-        self.network = self.network.to(device)
 
         #network = network.to(device)
-        self.network.load_state_dict(torch.load(self.model_dir+"/{}_with_accuracy={}.pth".format(self.load_model,self.accuracy)))
-        self.network = self.network.to(device)
+        model.load_state_dict(torch.load(self.model_dir+"/{}_with_accuracy={}.pth".format(self.load_model,self.accuracy)))
         for data in Test_Loader:
             inputs,labels = data
             inputs = Variable(inputs).type(torch.FloatTensor)
             inputs = inputs.to(device)
-            prediction = self.network(inputs)
+            prediction = model(inputs)
             predict_results = prediction.data.max(1,keepdim=True)[1]
             Vis.image_visualize(inputs,predict_results)
             break
