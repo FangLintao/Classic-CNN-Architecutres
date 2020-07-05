@@ -7,3 +7,5 @@ Here is to introduce most classic CNN architectures. all of architectures would 
 4. GoogleNet
 5. VGGNet
 6. ResNet
+## Implementation  
+For each folder, the network demo should be moved outside of this folder!!
