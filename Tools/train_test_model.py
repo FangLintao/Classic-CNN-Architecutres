@@ -24,7 +24,7 @@ cpu = torch.device("cpu")
 class train_test_model:
     def __init__(self,network,model_dir="saved_models"):
         self.network = network
-        self.model_dir = os.path.join("./"+self.network+"/"+model_dir)
+        self.model_dir = os.path.join(self.network,model_dir)
         if not os.path.exists(self.model_dir):
             os.mkdir(self.model_dir)
 
